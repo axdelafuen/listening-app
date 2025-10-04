@@ -1,0 +1,97 @@
+<div class="drag-drop-container">
+  <div class="controls">
+    <button class="btn btn-secondary" (click)="addNewItem('text')">
+      <span class="icon">📝</span> Ajouter du texte
+    </button>
+    <button class="btn btn-secondary" (click)="addNewItem('audio')">
+      <span class="icon">🎵</span> Ajouter de l'audio
+    </button>
+    <button class="btn btn-secondary" (click)="addNewItem('image')">
+      <span class="icon">🖼️</span> Ajouter une image
+    </button>
+    <button class="btn btn-danger" (click)="resetExercise()">
+      <span class="icon">🔄</span> Réinitialiser
+    </button>
+  </div>
+
+  <!-- Section Colonnes -->
+  <section class="columns-section">
+    <h2>Organisation par colonnes</h2>
+    <div class="columns-container">
+      <div 
+        *ngFor="let column of columns" 
+        class="column"
+        [class.source-column]="column.id === 'source'"
+      >
+        <h3>{{ column.title }}</h3>
+        <div 
+          class="drop-zone"
+          cdkDropList
+          [cdkDropListData]="column.items"
+          [cdkDropListConnectedTo]="['source', 'target1', 'target2', 'row1', 'row2', 'row3']"
+          (cdkDropListDropped)="dropColumn($event, column.id)"
+        >
+          <div 
+            *ngFor="let item of column.items" 
+            class="drag-item"
+            [class]="'item-' + item.type"
+            cdkDrag
+          >
+            <span class="item-content">{{ item.content }}</span>
+            <button 
+              class="remove-btn" 
+              (click)="removeItem(item, column.id)"
+              title="Supprimer"
+            >
+              ×
+            </button>
+            <div class="drag-placeholder" *cdkDragPlaceholder></div>
+          </div>
+          
+          <div *ngIf="column.items.length === 0" class="empty-zone">
+            Glissez des éléments ici
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Lignes -->
+  <section class="rows-section">
+    <h2>Organisation par lignes (Questions)</h2>
+    <div class="rows-container">
+      <div *ngFor="let row of rows" class="row">
+        <h3>{{ row.title }}</h3>
+        <div 
+          class="drop-zone horizontal"
+          cdkDropList
+          [cdkDropListData]="row.items"
+          [cdkDropListConnectedTo]="['source', 'target1', 'target2', 'row1', 'row2', 'row3']"
+          cdkDropListOrientation="horizontal"
+          (cdkDropListDropped)="dropRow($event, row.id)"
+        >
+          <div 
+            *ngFor="let item of row.items" 
+            class="drag-item horizontal"
+            [class]="'item-' + item.type"
+            cdkDrag
+          >
+            <span class="item-content">{{ item.content }}</span>
+            <button 
+              class="remove-btn" 
+              (click)="removeItem(item, row.id)"
+              title="Supprimer"
+            >
+              ×
+            </button>
+            <div class="drag-placeholder" *cdkDragPlaceholder></div>
+          </div>
+          
+          <div *ngIf="row.items.length === 0" class="empty-zone horizontal">
+            Réponse pour {{ row.title.toLowerCase() }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
