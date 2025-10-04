@@ -1,0 +1,170 @@
+<main class="main">
+  <div class="container">
+    <div class="back-button-container">
+      <button type="button" class="btn btn-back" (click)="attemptGoBack()">
+        <span class="icon">←</span> Retour au menu principal
+      </button>
+    </div>
+
+    <header class="header">
+      <h1 class="title">Nouvel exercice</h1>
+    </header>
+
+    <section class="content">
+      <div class="title-section">
+        <label class="section-title">Titre de l'exercice :</label>
+        <input 
+          type="text" 
+          class="title-input"
+          placeholder="Entrez le titre de l'exercice" 
+          [(ngModel)]="exerciseTitle"
+        />
+      </div>
+
+      <div class="controls-section">
+        <button type="button" class="btn btn-primary" (click)="addGroup()">
+          <span class="icon">➕</span> Ajouter un groupe
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-success" 
+          (click)="saveExercise()"
+          [disabled]="groups.length === 0"
+        >
+          <span class="icon">💾</span> Sauvegarder l'exercice
+        </button>
+      </div>
+
+      <div class="groups-container">
+        <div *ngFor="let group of groups; let i = index" class="group-card">
+          <div class="group-header">
+            <h3>Groupe {{ i + 1 }}</h3>
+            <button 
+              type="button" 
+              class="btn btn-danger btn-small" 
+              (click)="removeGroup(group.id)"
+              title="Supprimer ce groupe"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div class="background-section">
+            <label class="upload-label">
+              <span class="label-text">📷 Image d'arrière-plan</span>
+              <input 
+                type="file" 
+                accept="image/*" 
+                class="file-input"
+                (change)="onBackgroundImageChange($event, group.id)"
+              />
+              <div class="file-display">
+                <span *ngIf="!group.backgroundImageName" class="placeholder">
+                  Cliquez pour sélectionner une image
+                </span>
+                <span *ngIf="group.backgroundImageName" class="file-name">
+                  {{ group.backgroundImageName }}
+                </span>
+              </div>
+              <div *ngIf="group.backgroundImageUrl" class="image-preview">
+                <img [src]="group.backgroundImageUrl" [alt]="group.backgroundImageName" class="preview-thumbnail">
+              </div>
+            </label>
+          </div>
+
+          <div class="audio-section">
+            <div class="audio-header">
+              <h4>Éléments audio</h4>
+              <button 
+                type="button" 
+                class="btn btn-secondary btn-small" 
+                (click)="addAudioElement(group.id)"
+              >
+                <span class="icon">🎵</span> Ajouter un élément
+              </button>
+            </div>
+
+            <div class="audio-elements">
+              <div 
+                *ngFor="let audio of group.audioElements; let j = index" 
+                class="audio-item"
+              >
+                <label class="upload-label audio-upload">
+                  <span class="label-text">🎵 Audio {{ j + 1 }}</span>
+                  <input 
+                    type="file" 
+                    accept="audio/*" 
+                    class="file-input"
+                    (change)="onAudioFileChange($event, group.id, audio.id)"
+                  />
+                  <div class="file-display">
+                    <span *ngIf="!audio.fileName" class="placeholder">
+                      Sélectionner un fichier audio
+                    </span>
+                    <span *ngIf="audio.fileName" class="file-name">
+                      {{ audio.fileName }}
+                    </span>
+                  </div>
+                </label>
+                <button 
+                  type="button" 
+                  class="btn btn-danger btn-tiny" 
+                  (click)="removeAudioElement(group.id, audio.id)"
+                  title="Supprimer cet audio"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div *ngIf="group.audioElements.length === 0" class="no-audio">
+                Aucun élément audio. Cliquez sur "Ajouter un élément" pour commencer.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="groups.length === 0" class="no-groups">
+          Aucun groupe créé. Cliquez sur "Ajouter un groupe" pour commencer.
+        </div>
+      </div>
+    </section>
+
+    <section class="bottom-actions" *ngIf="groups.length > 0 || exerciseTitle.trim() !== ''">
+      <button 
+        type="button" 
+        class="btn btn-save-bottom" 
+        (click)="saveExercise()"
+      >
+        <span class="icon">💾</span> Sauvegarder l'exercice
+      </button>
+    </section>
+  </div>
+
+  <div class="popup-overlay" *ngIf="showExitPopup" (click)="closeExitPopup()">
+    <div class="popup-content" (click)="$event.stopPropagation()">
+      <div class="popup-header">
+        <h3>⚠️ Attention</h3>
+        <button class="popup-close" (click)="closeExitPopup()">✕</button>
+      </div>
+      
+      <div class="popup-body">
+        <p>Êtes-vous sûr de vouloir retourner au menu principal ?</p>
+        <p class="warning-text">
+          Votre travail n'est pas sauvegardé et sera perdu définitivement.
+        </p>
+      </div>
+      
+      <div class="popup-actions">
+        <button class="btn btn-secondary" (click)="closeExitPopup()">
+          <span class="icon">❌</span> Annuler
+        </button>
+        <button class="btn btn-warning" (click)="saveAndGoBack()">
+          <span class="icon">💾</span> Sauvegarder et quitter
+        </button>
+        <button class="btn btn-danger" (click)="goBackToHome()">
+          <span class="icon">🗑️</span> Quitter sans sauvegarder
+        </button>
+      </div>
+    </div>
+  </div>
+</main>

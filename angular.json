@@ -74,12 +74,12 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
                 }
               ],
               "outputHashing": "all",
-              "baseHref": "/",
+              "baseHref": "/listening-app/",
               "prerender": true,
               "ssr": false
             }
