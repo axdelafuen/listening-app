@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { ExportService } from '../../services/export.service';
 
 interface AudioElement {
   id: number;
@@ -30,7 +31,7 @@ export class CreateExerciseComponent {
   showExitPopup = false;
   isSaved = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private exportService: ExportService) {}
 
 
   addGroup() {
@@ -104,18 +105,6 @@ export class CreateExerciseComponent {
     }
   }
 
-
-  saveExercise() {
-    console.log('Exercice sauvegardé:', {
-      title: this.exerciseTitle,
-      groups: this.groups
-    });
-    this.isSaved = true;
-
-    alert('Exercice sauvegardé avec succès !');
-  }
-
-
   getTotalAudioElements(): number {
     return this.groups.reduce((total, group) => total + group.audioElements.length, 0);
   }
@@ -150,5 +139,34 @@ export class CreateExerciseComponent {
     setTimeout(() => {
       this.goBackToHome();
     }, 1000);
+  }
+
+  async saveExercise() {
+    if (this.groups.length === 0) {
+      alert('Veuillez ajouter au moins un groupe avant d\'exporter.');
+      return;
+    }
+
+    const hasAudios = this.groups.some(group => 
+      group.audioElements.some(audio => audio.file !== null)
+    );
+
+    if (!hasAudios) {
+      alert('Veuillez ajouter au moins un fichier audio avant d\'exporter.');
+      return;
+    }
+
+    try {
+      const exerciseData = {
+        title: this.exerciseTitle,
+        groups: this.groups
+      };
+
+      await this.exportService.exportExercise(exerciseData);
+      alert('Exercice exporté avec succès !');
+    } catch (error) {
+      console.error('Erreur lors de l\'export:', error);
+      alert('Erreur lors de l\'export de l\'exercice.');
+    }
   }
 }
