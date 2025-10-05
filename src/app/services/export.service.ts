@@ -142,7 +142,7 @@ export class ExportService {
             color: #7f8c8d;
         }
 
-        .audio-player {
+        .audio-elements-zone {
             text-align: center;
             margin: 30px 0;
             background: white;
@@ -151,34 +151,77 @@ export class ExportService {
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .audio-controls {
+        .audio-elements-zone h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .audio-elements-container {
             display: flex;
+            flex-wrap: wrap;
             justify-content: center;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 15px;
+            gap: 15px;
+            min-height: 100px;
+            padding: 20px;
+            border: 2px dashed #bdc3c7;
+            border-radius: 8px;
+            background-color: #f8f9fa;
         }
 
-        .play-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: #3498db;
-            color: white;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
+        .audio-element {
+            padding: 12px 16px;
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 6px;
+            cursor: grab;
             transition: all 0.3s ease;
+            font-weight: 500;
+            color: #1976d2;
+            min-width: 120px;
+            text-align: center;
+            position: relative;
+            user-select: none;
         }
 
-        .play-btn:hover {
-            background: #2980b9;
+        .audio-element:hover {
+            background: #bbdefb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+
+        .audio-element.dragging {
+            opacity: 0.7;
+            cursor: grabbing;
+            transform: rotate(5deg);
+        }
+
+        .audio-element.playing {
+            background: #c8e6c9;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        .audio-element .play-icon {
+            display: inline-block;
+            margin-right: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .audio-element .play-icon:hover {
+            background: rgba(255, 255, 255, 0.4);
             transform: scale(1.1);
         }
 
-        .current-audio {
-            font-weight: bold;
-            color: #2c3e50;
+        .audio-element .controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .groups-container {
@@ -198,6 +241,7 @@ export class ExportService {
 
         .group-header {
             display: flex;
+            justify-content: center;
             align-items: center;
             margin-bottom: 15px;
             padding-bottom: 10px;
@@ -205,18 +249,12 @@ export class ExportService {
         }
 
         .group-image {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
             object-fit: cover;
-            margin-right: 15px;
-            border: 2px solid #e9ecef;
-        }
-
-        .group-title {
-            font-size: 1.2rem;
-            color: #2c3e50;
-            font-weight: 500;
+            border: 3px solid #e9ecef;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
 
         .drop-zone {
@@ -236,25 +274,47 @@ export class ExportService {
         }
 
         .audio-slot {
-            padding: 10px;
+            padding: 12px 16px;
             background: #f8f9fa;
+            border: 2px dashed #bdc3c7;
             border-radius: 6px;
-            border: 1px solid #e9ecef;
             text-align: center;
             color: #6c757d;
-            cursor: grab;
             transition: all 0.3s ease;
+            min-width: 120px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .audio-slot.drag-over {
+            border-color: #3498db;
+            background-color: #ebf3fd;
+            border-style: solid;
         }
 
         .audio-slot.filled {
-            background: #d4edda;
-            border-color: #c3e6cb;
-            color: #155724;
+            background: #6c757d;
+            border: 2px solid #495057;
+            color: white;
+            border-style: solid;
         }
 
-        .audio-slot.dragging {
+        .audio-slot.filled.correct {
+            background: #28a745;
+            border-color: #1e7e34;
+        }
+
+        .audio-slot.filled.incorrect {
+            background: #dc3545;
+            border-color: #bd2130;
+        }
+
+        .audio-slot.disabled {
             opacity: 0.5;
-            cursor: grabbing;
+            cursor: not-allowed;
         }
 
         .controls {
@@ -290,21 +350,6 @@ export class ExportService {
             background: #229954;
         }
 
-        .score {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .correct {
-            color: #27ae60;
-        }
-
-        .incorrect {
-            color: #e74c3c;
-        }
-
         @media (max-width: 768px) {
             .groups-container {
                 grid-template-columns: 1fr;
@@ -321,31 +366,26 @@ export class ExportService {
         <div class="header">
             <h1 class="title">${importData.title}</h1>
             <p class="instructions">
-                Écoutez l'audio et placez-le dans le bon groupe en cliquant sur une case vide.
+                Glissez et déposez les éléments audio dans les bons groupes.
             </p>
         </div>
 
-        <div class="audio-player">
-            <div class="audio-controls">
-                <button class="play-btn" id="playBtn">▶</button>
-                <div class="current-audio" id="currentAudio">Cliquez sur "Nouvel Audio" pour commencer</div>
+        <div class="audio-elements-zone">
+            <h3>Éléments audio à placer</h3>
+            <div class="audio-elements-container" id="audioElementsContainer">
+                <!-- Les éléments audio seront générés dynamiquement -->
             </div>
             <audio id="audioElement" preload="auto"></audio>
         </div>
 
         <div class="controls">
-            <button class="btn btn-primary" id="newAudioBtn">Nouvel Audio</button>
-            <button class="btn btn-success" id="checkBtn" style="display: none;">Vérifier</button>
-            <button class="btn btn-primary" id="resetBtn">Recommencer</button>
+            <button class="btn btn-success" id="validateBtn" style="display: none;">Valider</button>
         </div>
 
         <div class="groups-container" id="groupsContainer">
             <!-- Les groupes seront générés dynamiquement -->
         </div>
 
-        <div class="score" id="scoreDisplay" style="display: none;">
-            Score: <span id="score">0</span> / <span id="total">0</span>
-        </div>
     </div>
 
     <script src="script.js"></script>
@@ -359,29 +399,55 @@ const EXERCISE_DATA = ${JSON.stringify(importData, null, 2)};
 
 class ListeningExercise {
     constructor() {
-        this.importData = EXERCISE_DATA; // Utiliser les données incluses
-        this.currentAudio = null;
-        this.currentAudioId = null;
-        this.userAnswers = {};
-        this.score = 0;
-        this.totalAnswers = 0;
+        this.importData = EXERCISE_DATA;
+        this.allAudioElements = [];
+        this.currentAudioIndex = 0;
+        this.userPlacements = {};
+        this.gameCompleted = false;
+        this.currentlyPlaying = null;
         this.init();
     }
 
     async init() {
-        // Pas besoin de charger les données, elles sont déjà disponibles
         this.setupEventListeners();
         this.renderGroups();
+        this.prepareAudioElements();
+        this.showNextAudio();
     }
 
-    // Méthode supprimée car les données sont déjà incluses
-    // async loadImportData() { ... }
-
     setupEventListeners() {
-        document.getElementById('playBtn').addEventListener('click', () => this.playCurrentAudio());
-        document.getElementById('newAudioBtn').addEventListener('click', () => this.loadRandomAudio());
-        document.getElementById('checkBtn').addEventListener('click', () => this.checkAnswer());
-        document.getElementById('resetBtn').addEventListener('click', () => this.resetExercise());
+        document.getElementById('validateBtn').addEventListener('click', () => this.validateAllAnswers());
+        
+        // Gestion du drag and drop
+        this.setupDragAndDrop();
+    }
+
+    setupDragAndDrop() {
+        // Événements pour les zones de dépôt (emplacements)
+        document.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const dropZone = e.target.closest('.audio-slot');
+            if (dropZone && !dropZone.classList.contains('filled')) {
+                dropZone.classList.add('drag-over');
+            }
+        });
+
+        document.addEventListener('dragleave', (e) => {
+            const dropZone = e.target.closest('.audio-slot');
+            if (dropZone) {
+                dropZone.classList.remove('drag-over');
+            }
+        });
+
+        document.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const dropZone = e.target.closest('.audio-slot');
+            if (dropZone && !dropZone.classList.contains('filled')) {
+                dropZone.classList.remove('drag-over');
+                const audioId = e.dataTransfer.getData('text/plain');
+                this.placeAudio(audioId, dropZone);
+            }
+        });
     }
 
     renderGroups() {
@@ -410,11 +476,6 @@ class ListeningExercise {
             headerDiv.appendChild(img);
         }
 
-        const titleDiv = document.createElement('div');
-        titleDiv.className = 'group-title';
-        titleDiv.textContent = \`Groupe \${group.id}\`;
-        headerDiv.appendChild(titleDiv);
-
         const dropZone = document.createElement('div');
         dropZone.className = 'drop-zone';
         dropZone.dataset.groupId = group.id;
@@ -423,9 +484,9 @@ class ListeningExercise {
         for (let i = 0; i < group.audioElements.length; i++) {
             const slot = document.createElement('div');
             slot.className = 'audio-slot';
+            slot.dataset.groupId = group.id;
             slot.dataset.slotIndex = i;
             slot.textContent = \`Emplacement \${i + 1}\`;
-            slot.addEventListener('click', () => this.placeAudio(group.id, i));
             dropZone.appendChild(slot);
         }
 
@@ -435,217 +496,235 @@ class ListeningExercise {
         return groupDiv;
     }
 
-    getAllAudioElements() {
-        const allAudios = [];
+    prepareAudioElements() {
+        // Collecter tous les éléments audio et les mélanger
+        this.allAudioElements = [];
         this.importData.groups.forEach(group => {
             group.audioElements.forEach(audio => {
-                allAudios.push({
+                this.allAudioElements.push({
                     ...audio,
                     correctGroupId: group.id
                 });
             });
         });
-        return allAudios;
+
+        // Mélanger l'ordre des audios
+        this.shuffleArray(this.allAudioElements);
     }
 
-    loadRandomAudio() {
-        const allAudios = this.getAllAudioElements();
-        const availableAudios = allAudios.filter(audio => !this.userAnswers[audio.id]);
+    shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
 
-        if (availableAudios.length === 0) {
-            alert('Tous les audios ont été placés !');
+    showNextAudio() {
+        if (this.currentAudioIndex >= this.allAudioElements.length) {
+            this.checkIfCompleted();
             return;
         }
 
-        const randomAudio = availableAudios[Math.floor(Math.random() * availableAudios.length)];
-        this.currentAudio = randomAudio;
-        this.currentAudioId = randomAudio.id;
-
-        const audioElement = document.getElementById('audioElement');
-        audioElement.src = randomAudio.fileName;
-
-        document.getElementById('currentAudio').textContent = randomAudio.originalName || \`Audio \${randomAudio.id}\`;
-        document.getElementById('playBtn').textContent = '▶';
-        document.getElementById('checkBtn').style.display = 'none';
-
-        // Réinitialiser les états visuels
-        this.clearHighlights();
+        const audio = this.allAudioElements[this.currentAudioIndex];
+        this.createAudioElement(audio);
+        this.autoPlayAudio(audio);
     }
 
-    playCurrentAudio() {
-        if (!this.currentAudio) {
-            alert('Veuillez d\\'abord charger un audio avec "Nouvel Audio"');
-            return;
-        }
+    createAudioElement(audioData) {
+        const container = document.getElementById('audioElementsContainer');
+        
+        const audioElement = document.createElement('div');
+        audioElement.className = 'audio-element';
+        audioElement.draggable = true;
+        audioElement.dataset.audioId = audioData.id;
+        
+        const controlsDiv = document.createElement('div');
+        controlsDiv.className = 'controls';
+        
+        const playIcon = document.createElement('span');
+        playIcon.className = 'play-icon';
+        playIcon.textContent = '▶';
+        playIcon.title = 'Jouer/Pause';
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = audioData.originalName || \`Audio \${audioData.id}\`;
+        
+        controlsDiv.appendChild(playIcon);
+        controlsDiv.appendChild(nameSpan);
+        audioElement.appendChild(controlsDiv);
 
+        // Événements de drag
+        audioElement.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', audioData.id);
+            audioElement.classList.add('dragging');
+        });
+
+        audioElement.addEventListener('dragend', () => {
+            audioElement.classList.remove('dragging');
+        });
+
+        // Clic sur l'icône play pour jouer/pause l'audio
+        playIcon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleAudio(audioData, playIcon);
+        });
+
+        container.appendChild(audioElement);
+    }
+
+    toggleAudio(audioData, playIcon) {
         const audioElement = document.getElementById('audioElement');
-        const playBtn = document.getElementById('playBtn');
-
-        if (audioElement.paused) {
-            audioElement.play().then(() => {
-                playBtn.textContent = '⏸';
-            }).catch(error => {
-                console.error('Erreur lors de la lecture:', error);
-                alert('Impossible de lire le fichier audio');
-            });
+        
+        // Si c'est le même audio qui joue actuellement
+        if (audioElement.src.endsWith(audioData.fileName)) {
+            if (audioElement.paused) {
+                this.playAudio(audioData, playIcon);
+            } else {
+                this.pauseAudio(playIcon);
+            }
         } else {
-            audioElement.pause();
-            playBtn.textContent = '▶';
+            // Jouer un nouvel audio
+            this.playAudio(audioData, playIcon);
         }
+    }
+
+    playAudio(audioData, playIcon = null) {
+        const audioElement = document.getElementById('audioElement');
+        audioElement.src = audioData.fileName;
+
+        // Réinitialiser tous les icônes play
+        document.querySelectorAll('.play-icon').forEach(icon => {
+            icon.textContent = '▶';
+        });
+
+        // Mettre à jour l'état visuel
+        if (this.currentlyPlaying) {
+            this.currentlyPlaying.classList.remove('playing');
+        }
+
+        const audioElementDiv = document.querySelector(\`[data-audio-id="\${audioData.id}"]\`);
+        if (audioElementDiv) {
+            audioElementDiv.classList.add('playing');
+            this.currentlyPlaying = audioElementDiv;
+        }
+
+        if (playIcon) {
+            playIcon.textContent = '⏸';
+        }
+
+        audioElement.play().catch(error => {
+            console.error('Erreur lors de la lecture:', error);
+        });
 
         audioElement.addEventListener('ended', () => {
-            playBtn.textContent = '▶';
-        });
+            if (audioElementDiv) {
+                audioElementDiv.classList.remove('playing');
+            }
+            if (playIcon) {
+                playIcon.textContent = '▶';
+            }
+            this.currentlyPlaying = null;
+        }, { once: true });
     }
 
-    placeAudio(groupId, slotIndex) {
-        if (!this.currentAudio) {
-            alert('Veuillez d\\'abord charger un audio avec "Nouvel Audio"');
-            return;
+    pauseAudio(playIcon) {
+        const audioElement = document.getElementById('audioElement');
+        audioElement.pause();
+        
+        if (playIcon) {
+            playIcon.textContent = '▶';
         }
+        
+        if (this.currentlyPlaying) {
+            this.currentlyPlaying.classList.remove('playing');
+        }
+    }
 
-        // Marquer la réponse de l'utilisateur
-        this.userAnswers[this.currentAudioId] = {
-            selectedGroupId: groupId,
+    autoPlayAudio(audioData) {
+        // Jouer automatiquement l'audio quand il apparaît
+        setTimeout(() => {
+            const playIcon = document.querySelector(\`[data-audio-id="\${audioData.id}"] .play-icon\`);
+            this.playAudio(audioData, playIcon);
+        }, 500);
+    }
+
+    placeAudio(audioId, slotElement) {
+        const audioData = this.allAudioElements.find(a => a.id === audioId);
+        if (!audioData) return;
+
+        const groupId = slotElement.dataset.groupId;
+        const slotIndex = slotElement.dataset.slotIndex;
+
+        // Enregistrer le placement
+        this.userPlacements[audioId] = {
+            groupId: groupId,
             slotIndex: slotIndex,
-            correctGroupId: this.currentAudio.correctGroupId
+            correctGroupId: audioData.correctGroupId,
+            audioData: audioData
         };
 
         // Mettre à jour l'interface
-        const slot = document.querySelector(\`[data-group-id="\${groupId}"] .audio-slot[data-slot-index="\${slotIndex}"]\`);
-        slot.textContent = this.currentAudio.originalName || \`Audio \${this.currentAudio.id}\`;
-        slot.classList.add('filled');
+        slotElement.textContent = audioData.originalName || \`Audio \${audioData.id}\`;
+        slotElement.classList.add('filled');
 
-        // Afficher le bouton de vérification
-        document.getElementById('checkBtn').style.display = 'inline-block';
-    }
-
-    checkAnswer() {
-        const answer = this.userAnswers[this.currentAudioId];
-        const isCorrect = answer.selectedGroupId == answer.correctGroupId;
-
-        // Mise à jour du score
-        if (isCorrect) {
-            this.score++;
-        }
-        this.totalAnswers++;
-
-        // Affichage visuel
-        const slot = document.querySelector(\`[data-group-id="\${answer.selectedGroupId}"] .audio-slot[data-slot-index="\${answer.slotIndex}"]\`);
-        
-        if (isCorrect) {
-            slot.style.background = '#d4edda';
-            slot.style.borderColor = '#c3e6cb';
-            slot.style.color = '#155724';
-        } else {
-            slot.style.background = '#f8d7da';
-            slot.style.borderColor = '#f5c6cb';
-            slot.style.color = '#721c24';
-            
-            // Montrer la bonne réponse
-            setTimeout(() => {
-                this.highlightCorrectAnswer();
-            }, 1000);
+        // Supprimer l'élément audio draggable
+        const audioElement = document.querySelector(\`[data-audio-id="\${audioId}"]\`);
+        if (audioElement) {
+            audioElement.remove();
         }
 
-        // Mettre à jour l'affichage du score
-        this.updateScoreDisplay();
-
-        // Préparer pour le prochain audio
-        this.currentAudio = null;
-        this.currentAudioId = null;
-        document.getElementById('checkBtn').style.display = 'none';
-        document.getElementById('currentAudio').textContent = 'Cliquez sur "Nouvel Audio" pour continuer';
-
-        // Vérifier si l'exercice est terminé
+        // Passer à l'audio suivant
+        this.currentAudioIndex++;
         setTimeout(() => {
-            const allAudios = this.getAllAudioElements();
-            if (Object.keys(this.userAnswers).length === allAudios.length) {
-                this.showFinalResults();
+            this.showNextAudio();
+        }, 1000);
+    }
+
+    checkIfCompleted() {
+        const totalAudios = this.allAudioElements.length;
+        const placedAudios = Object.keys(this.userPlacements).length;
+
+        if (placedAudios === totalAudios) {
+            // Tous les audios sont placés, afficher le bouton de validation
+            document.getElementById('validateBtn').style.display = 'inline-block';
+            
+            // Griser tous les emplacements
+            document.querySelectorAll('.audio-slot.filled').forEach(slot => {
+                slot.classList.add('disabled');
+            });
+        }
+    }
+
+    validateAllAnswers() {
+        let correctAnswers = 0;
+        const totalAnswers = Object.keys(this.userPlacements).length;
+
+        // Vérifier chaque placement et mettre à jour l'affichage
+        Object.entries(this.userPlacements).forEach(([audioId, placement]) => {
+            const isCorrect = placement.groupId == placement.correctGroupId;
+            const slot = document.querySelector(\`[data-group-id="\${placement.groupId}"][data-slot-index="\${placement.slotIndex}"]\`);
+
+            if (slot) {
+                slot.classList.remove('disabled');
+                if (isCorrect) {
+                    slot.classList.add('correct');
+                    correctAnswers++;
+                } else {
+                    slot.classList.add('incorrect');
+                }
             }
-        }, 2000);
-    }
-
-    highlightCorrectAnswer() {
-        const answer = this.userAnswers[this.currentAudioId];
-        const correctGroup = this.importData.groups.find(g => g.id == answer.correctGroupId);
-        
-        if (correctGroup) {
-            const correctSlots = document.querySelectorAll(\`[data-group-id="\${answer.correctGroupId}"] .audio-slot\`);
-            correctSlots.forEach(slot => {
-                slot.style.border = '3px solid #28a745';
-            });
-
-            setTimeout(() => {
-                correctSlots.forEach(slot => {
-                    slot.style.border = '';
-                });
-            }, 3000);
-        }
-    }
-
-    updateScoreDisplay() {
-        document.getElementById('scoreDisplay').style.display = 'block';
-        document.getElementById('score').textContent = this.score;
-        document.getElementById('total').textContent = this.totalAnswers;
-    }
-
-    showFinalResults() {
-        const percentage = Math.round((this.score / this.totalAnswers) * 100);
-        alert(\`Exercice terminé !\\nScore: \${this.score}/\${this.totalAnswers} (\${percentage}%)\`);
-        
-        // Sauvegarder les résultats
-        this.saveResults();
-    }
-
-    saveResults() {
-        const results = {
-            date: new Date().toISOString(),
-            score: this.score,
-            total: this.totalAnswers,
-            percentage: Math.round((this.score / this.totalAnswers) * 100),
-            answers: this.userAnswers
-        };
-
-        // Dans un environnement réel, vous pourriez sauvegarder dans localStorage
-        // ou envoyer vers un serveur
-        localStorage.setItem('lastExerciseResults', JSON.stringify(results));
-        console.log('Résultats sauvegardés:', results);
-    }
-
-    clearHighlights() {
-        document.querySelectorAll('.audio-slot').forEach(slot => {
-            slot.style.border = '';
-            slot.style.background = '';
-            slot.style.borderColor = '';
-            slot.style.color = '';
         });
-    }
 
-    resetExercise() {
-        if (confirm('Êtes-vous sûr de vouloir recommencer l\\'exercice ?')) {
-            this.userAnswers = {};
-            this.score = 0;
-            this.totalAnswers = 0;
-            this.currentAudio = null;
-            this.currentAudioId = null;
+        // Afficher les résultats finaux
+        const percentage = Math.round((correctAnswers / totalAnswers) * 100);
+        setTimeout(() => {
+            alert(\`Exercice terminé !\\nScore: \${correctAnswers}/\${totalAnswers} (\${percentage}%)\`);
+        }, 1000);
 
-            document.getElementById('scoreDisplay').style.display = 'none';
-            document.getElementById('checkBtn').style.display = 'none';
-            document.getElementById('currentAudio').textContent = 'Cliquez sur "Nouvel Audio" pour commencer';
-
-            // Réinitialiser tous les emplacements
-            document.querySelectorAll('.audio-slot').forEach((slot, index) => {
-                slot.textContent = \`Emplacement \${(index % 10) + 1}\`;
-                slot.classList.remove('filled');
-                slot.style.background = '';
-                slot.style.borderColor = '';
-                slot.style.color = '';
-                slot.style.border = '';
-            });
-
-            this.clearHighlights();
-        }
+        // Cacher le bouton de validation
+        document.getElementById('validateBtn').style.display = 'none';
+        
+        this.gameCompleted = true;
     }
 }
 
