@@ -42,7 +42,7 @@ export class ExportService {
     // Générer les fichiers
     zip.file('import.json', JSON.stringify(importData, null, 2));
     zip.file('index.html', this.generateIndexHTML(importData));
-    zip.file('script.js', this.generateScriptJS());
+    zip.file('script.js', this.generateScriptJS(importData)); // Passer les données au script
     
     // Créer un fichier readme dans results
     resultsFolder!.file('readme.txt', 'Les résultats des exercices seront sauvegardés dans ce dossier.');
@@ -353,10 +353,13 @@ export class ExportService {
 </html>`;
   }
 
-  private generateScriptJS(): string {
-    return `class ListeningExercise {
+  private generateScriptJS(importData: any): string {
+    return `// Données de l'exercice incluses directement
+const EXERCISE_DATA = ${JSON.stringify(importData, null, 2)};
+
+class ListeningExercise {
     constructor() {
-        this.importData = null;
+        this.importData = EXERCISE_DATA; // Utiliser les données incluses
         this.currentAudio = null;
         this.currentAudioId = null;
         this.userAnswers = {};
@@ -366,20 +369,13 @@ export class ExportService {
     }
 
     async init() {
-        await this.loadImportData();
+        // Pas besoin de charger les données, elles sont déjà disponibles
         this.setupEventListeners();
         this.renderGroups();
     }
 
-    async loadImportData() {
-        try {
-            const response = await fetch('import.json');
-            this.importData = await response.json();
-            console.log('Données chargées:', this.importData);
-        } catch (error) {
-            console.error('Erreur lors du chargement des données:', error);
-        }
-    }
+    // Méthode supprimée car les données sont déjà incluses
+    // async loadImportData() { ... }
 
     setupEventListeners() {
         document.getElementById('playBtn').addEventListener('click', () => this.playCurrentAudio());
