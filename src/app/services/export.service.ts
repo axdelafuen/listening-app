@@ -32,22 +32,22 @@ export class ExportService {
     const zip = new JSZip();
     const exerciseTitle = this.sanitizeFileName(exerciseData.title || 'exercice-sans-titre');
     
-    // Créer la structure de dossiers
+
     const assetsFolder = zip.folder('assets');
     const resultsFolder = zip.folder('results');
 
-    // Préparer les données pour import.json
+
     const importData = await this.prepareImportData(exerciseData, assetsFolder!);
     
-    // Générer les fichiers
+
     zip.file('import.json', JSON.stringify(importData, null, 2));
     zip.file('index.html', this.generateIndexHTML(importData));
     zip.file('script.js', this.generateScriptJS(importData)); // Passer les données au script
     
-    // Créer un fichier readme dans results
+
     resultsFolder!.file('readme.txt', 'Les résultats des exercices seront sauvegardés dans ce dossier.');
 
-    // Générer et télécharger le ZIP
+
     const content = await zip.generateAsync({ type: 'blob' });
     saveAs(content, `${exerciseTitle}.zip`);
   }
@@ -64,7 +64,7 @@ export class ExportService {
         audioElements: []
       };
 
-      // Traiter l'image d'arrière-plan
+
       if (group.backgroundImage) {
         const imageExt = this.getFileExtension(group.backgroundImage.name);
         const imageName = `image_${imageCounter++}.${imageExt}`;
@@ -72,7 +72,7 @@ export class ExportService {
         groupData.backgroundImage = `assets/${imageName}`;
       }
 
-      // Traiter les éléments audio
+
       for (const audioElement of group.audioElements) {
         if (audioElement.file) {
           const audioExt = this.getFileExtension(audioElement.file.name);
@@ -197,31 +197,29 @@ export class ExportService {
         }
 
         .audio-element.playing {
-            background: #c8e6c9;
-            border-color: #4caf50;
-            color: #2e7d32;
+            background: #fff3e0;
+            border-color: #ff9800;
+            color: #e65100;
         }
 
         .audio-element .play-icon {
             display: inline-block;
             margin-right: 8px;
-            font-size: 14px;
+            font-size: 16px;
             cursor: pointer;
-            padding: 4px;
+            padding: 6px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.3);
             transition: all 0.2s ease;
+            width: 28px;
+            height: 28px;
+            text-align: center;
+            line-height: 16px;
         }
 
         .audio-element .play-icon:hover {
-            background: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.5);
             transform: scale(1.1);
-        }
-
-        .audio-element .controls {
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .groups-container {
@@ -418,14 +416,15 @@ class ListeningExercise {
     setupEventListeners() {
         document.getElementById('validateBtn').addEventListener('click', () => this.validateAllAnswers());
         
-        // Gestion du drag and drop
+
         this.setupDragAndDrop();
     }
 
     setupDragAndDrop() {
-        // Événements pour les zones de dépôt (emplacements)
+
         document.addEventListener('dragover', (e) => {
             e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
             const dropZone = e.target.closest('.audio-slot');
             if (dropZone && !dropZone.classList.contains('filled')) {
                 dropZone.classList.add('drag-over');
@@ -480,7 +479,7 @@ class ListeningExercise {
         dropZone.className = 'drop-zone';
         dropZone.dataset.groupId = group.id;
 
-        // Créer les emplacements pour les audios
+
         for (let i = 0; i < group.audioElements.length; i++) {
             const slot = document.createElement('div');
             slot.className = 'audio-slot';
@@ -497,7 +496,7 @@ class ListeningExercise {
     }
 
     prepareAudioElements() {
-        // Collecter tous les éléments audio et les mélanger
+
         this.allAudioElements = [];
         this.importData.groups.forEach(group => {
             group.audioElements.forEach(audio => {
@@ -508,7 +507,7 @@ class ListeningExercise {
             });
         });
 
-        // Mélanger l'ordre des audios
+
         this.shuffleArray(this.allAudioElements);
     }
 
@@ -527,7 +526,6 @@ class ListeningExercise {
 
         const audio = this.allAudioElements[this.currentAudioIndex];
         this.createAudioElement(audio);
-        this.autoPlayAudio(audio);
     }
 
     createAudioElement(audioData) {
@@ -538,9 +536,6 @@ class ListeningExercise {
         audioElement.draggable = true;
         audioElement.dataset.audioId = audioData.id;
         
-        const controlsDiv = document.createElement('div');
-        controlsDiv.className = 'controls';
-        
         const playIcon = document.createElement('span');
         playIcon.className = 'play-icon';
         playIcon.textContent = '▶';
@@ -549,13 +544,13 @@ class ListeningExercise {
         const nameSpan = document.createElement('span');
         nameSpan.textContent = audioData.originalName || \`Audio \${audioData.id}\`;
         
-        controlsDiv.appendChild(playIcon);
-        controlsDiv.appendChild(nameSpan);
-        audioElement.appendChild(controlsDiv);
+        audioElement.appendChild(playIcon);
+        audioElement.appendChild(nameSpan);
 
-        // Événements de drag
+
         audioElement.addEventListener('dragstart', (e) => {
-            e.dataTransfer.setData('text/plain', audioData.id);
+            e.dataTransfer.setData('text/plain', audioData.id.toString());
+            e.dataTransfer.effectAllowed = 'move';
             audioElement.classList.add('dragging');
         });
 
@@ -563,8 +558,9 @@ class ListeningExercise {
             audioElement.classList.remove('dragging');
         });
 
-        // Clic sur l'icône play pour jouer/pause l'audio
+
         playIcon.addEventListener('click', (e) => {
+            e.preventDefault();
             e.stopPropagation();
             this.toggleAudio(audioData, playIcon);
         });
@@ -575,15 +571,15 @@ class ListeningExercise {
     toggleAudio(audioData, playIcon) {
         const audioElement = document.getElementById('audioElement');
         
-        // Si c'est le même audio qui joue actuellement
-        if (audioElement.src.endsWith(audioData.fileName)) {
+
+        if (audioElement.src && audioElement.src.includes(audioData.fileName)) {
             if (audioElement.paused) {
                 this.playAudio(audioData, playIcon);
             } else {
                 this.pauseAudio(playIcon);
             }
         } else {
-            // Jouer un nouvel audio
+
             this.playAudio(audioData, playIcon);
         }
     }
@@ -592,12 +588,12 @@ class ListeningExercise {
         const audioElement = document.getElementById('audioElement');
         audioElement.src = audioData.fileName;
 
-        // Réinitialiser tous les icônes play
+
         document.querySelectorAll('.play-icon').forEach(icon => {
             icon.textContent = '▶';
         });
 
-        // Mettre à jour l'état visuel
+
         if (this.currentlyPlaying) {
             this.currentlyPlaying.classList.remove('playing');
         }
@@ -640,23 +636,20 @@ class ListeningExercise {
         }
     }
 
-    autoPlayAudio(audioData) {
-        // Jouer automatiquement l'audio quand il apparaît
-        setTimeout(() => {
-            const playIcon = document.querySelector(\`[data-audio-id="\${audioData.id}"] .play-icon\`);
-            this.playAudio(audioData, playIcon);
-        }, 500);
-    }
-
     placeAudio(audioId, slotElement) {
-        const audioData = this.allAudioElements.find(a => a.id === audioId);
-        if (!audioData) return;
+        // Convertir l'audioId en nombre si nécessaire
+        const numericAudioId = parseInt(audioId);
+        const audioData = this.allAudioElements.find(a => a.id === numericAudioId);
+        if (!audioData) {
+            console.error('Audio non trouvé:', audioId, 'dans', this.allAudioElements);
+            return;
+        }
 
         const groupId = slotElement.dataset.groupId;
         const slotIndex = slotElement.dataset.slotIndex;
 
         // Enregistrer le placement
-        this.userPlacements[audioId] = {
+        this.userPlacements[numericAudioId] = {
             groupId: groupId,
             slotIndex: slotIndex,
             correctGroupId: audioData.correctGroupId,
@@ -668,7 +661,7 @@ class ListeningExercise {
         slotElement.classList.add('filled');
 
         // Supprimer l'élément audio draggable
-        const audioElement = document.querySelector(\`[data-audio-id="\${audioId}"]\`);
+        const audioElement = document.querySelector(\`[data-audio-id="\${numericAudioId}"]\`);
         if (audioElement) {
             audioElement.remove();
         }
@@ -685,10 +678,10 @@ class ListeningExercise {
         const placedAudios = Object.keys(this.userPlacements).length;
 
         if (placedAudios === totalAudios) {
-            // Tous les audios sont placés, afficher le bouton de validation
+
             document.getElementById('validateBtn').style.display = 'inline-block';
             
-            // Griser tous les emplacements
+
             document.querySelectorAll('.audio-slot.filled').forEach(slot => {
                 slot.classList.add('disabled');
             });
@@ -699,7 +692,7 @@ class ListeningExercise {
         let correctAnswers = 0;
         const totalAnswers = Object.keys(this.userPlacements).length;
 
-        // Vérifier chaque placement et mettre à jour l'affichage
+
         Object.entries(this.userPlacements).forEach(([audioId, placement]) => {
             const isCorrect = placement.groupId == placement.correctGroupId;
             const slot = document.querySelector(\`[data-group-id="\${placement.groupId}"][data-slot-index="\${placement.slotIndex}"]\`);
@@ -715,20 +708,20 @@ class ListeningExercise {
             }
         });
 
-        // Afficher les résultats finaux
+
         const percentage = Math.round((correctAnswers / totalAnswers) * 100);
         setTimeout(() => {
             alert(\`Exercice terminé !\\nScore: \${correctAnswers}/\${totalAnswers} (\${percentage}%)\`);
         }, 1000);
 
-        // Cacher le bouton de validation
+
         document.getElementById('validateBtn').style.display = 'none';
         
         this.gameCompleted = true;
     }
 }
 
-// Initialiser l'exercice quand la page est chargée
+
 document.addEventListener('DOMContentLoaded', () => {
     window.exercise = new ListeningExercise();
 });`;
