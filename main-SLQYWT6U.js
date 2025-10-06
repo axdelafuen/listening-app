@@ -582,10 +582,10 @@ class ListeningExercise {
         const placedAudios = Object.keys(this.userPlacements).length;
 
         if (placedAudios === totalAudios) {
-
             document.getElementById('validateBtn').style.display = 'inline-block';
             
-
+            document.querySelector('.audio-elements-zone').style.display = 'none';
+            
             document.querySelectorAll('.audio-slot.filled').forEach(slot => {
                 slot.classList.add('disabled');
             });
@@ -595,7 +595,6 @@ class ListeningExercise {
     validateAllAnswers() {
         let correctAnswers = 0;
         const totalAnswers = Object.keys(this.userPlacements).length;
-
 
         Object.entries(this.userPlacements).forEach(([audioId, placement]) => {
             const isCorrect = placement.groupId == placement.correctGroupId;
