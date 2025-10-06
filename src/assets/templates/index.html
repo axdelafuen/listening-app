@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercice d'écoute</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title" id="exerciseTitle">Exercice d'écoute</h1>
+            <p class="instructions">
+                Glissez et déposez les éléments audio dans les bons groupes.
+            </p>
+        </div>
+
+        <div class="audio-elements-zone">
+            <h3>Éléments audio à placer</h3>
+            <div class="volume-controls">
+                <label for="volumeSlider">Volume:</label>
+                <input type="range" id="volumeSlider" min="0" max="100" value="70" class="volume-slider">
+                <span id="volumeValue">70%</span>
+            </div>
+            <div class="audio-elements-container" id="audioElementsContainer">
+            </div>
+            <audio id="audioElement" preload="auto"></audio>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-success" id="validateBtn" style="display: none;">Valider</button>
+        </div>
+
+        <div class="groups-container" id="groupsContainer">
+        </div>
+    </div>
+
+    <script src="exercise-data.js"></script>
+    <script src="exercise-engine.js"></script>
+</body>
+</html>

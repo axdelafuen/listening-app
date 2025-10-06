@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { ExportService } from '../../services/export.service';
+import { ExportService } from '../../services/export/export.service';
 
 interface AudioElement {
   id: number;
@@ -63,14 +63,12 @@ export class CreateExerciseComponent {
     const file = event.target.files[0];
     const group = this.groups.find(g => g.id === groupId);
     if (group && file) {
-      // Nettoyer l'ancienne URL si elle existe
       if (group.backgroundImageUrl) {
         URL.revokeObjectURL(group.backgroundImageUrl);
       }
       
       group.backgroundImage = file;
       group.backgroundImageName = file.name;
-      // Créer une URL pour l'aperçu
       group.backgroundImageUrl = URL.createObjectURL(file);
     }
   }
