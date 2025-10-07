@@ -54,13 +54,10 @@ export class DragDropExerciseComponent {
     }
   ];
 
-  // Gestion du drop pour les colonnes
   dropColumn(event: CdkDragDrop<DragItem[]>, columnId: string) {
     if (event.previousContainer === event.container) {
-      // Réorganiser dans la même colonne
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
-      // Déplacer entre colonnes
       transferArrayItem(
         event.previousContainer.data,
         event.container.data,
@@ -70,13 +67,10 @@ export class DragDropExerciseComponent {
     }
   }
 
-  // Gestion du drop pour les lignes
   dropRow(event: CdkDragDrop<DragItem[]>, rowId: string) {
     if (event.previousContainer === event.container) {
-      // Réorganiser dans la même ligne
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
     } else {
-      // Déplacer entre lignes ou depuis les colonnes
       transferArrayItem(
         event.previousContainer.data,
         event.container.data,
@@ -86,7 +80,6 @@ export class DragDropExerciseComponent {
     }
   }
 
-  // Ajouter un nouvel élément
   addNewItem(type: 'text' | 'audio' | 'image') {
     const newId = Math.max(...this.columns[0].items.map(item => item.id), 0) + 1;
     const newItem: DragItem = {
@@ -97,9 +90,7 @@ export class DragDropExerciseComponent {
     this.columns[0].items.push(newItem);
   }
 
-  // Supprimer un élément
   removeItem(item: DragItem, containerId: string) {
-    // Trouver et supprimer l'élément de toutes les listes
     this.columns.forEach(column => {
       const index = column.items.findIndex(i => i.id === item.id);
       if (index > -1) {
@@ -115,9 +106,7 @@ export class DragDropExerciseComponent {
     });
   }
 
-  // Réinitialiser l'exercice
   resetExercise() {
-    // Remettre tous les éléments dans la colonne source
     const allItems: DragItem[] = [];
     
     this.columns.forEach(column => {
@@ -135,7 +124,6 @@ export class DragDropExerciseComponent {
     this.columns[0].items = allItems;
   }
 
-  // Obtenir le nombre total d'éléments dans les lignes
   getTotalRowItems(): number {
     return this.rows.reduce((sum, row) => sum + row.items.length, 0);
   }

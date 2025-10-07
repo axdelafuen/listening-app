@@ -33,42 +33,33 @@ export class ExportService {
     const zip = new JSZip();
     const exerciseTitle = this.sanitizeFileName(exerciseData.title || 'exercice-sans-titre');
     
-    // Créer le dossier assets pour les fichiers audio et images
     const assetsFolder = zip.folder('assets');
 
-    // Préparer les données de l'exercice
     const importData = await this.prepareImportData(exerciseData, assetsFolder!);
     
-    // Copier les templates statiques
     await this.copyStaticTemplates(zip);
     
-    // Générer le fichier de données JavaScript
     const exerciseDataJS = this.generateExerciseDataJS(importData);
     zip.file('exercise-data.js', exerciseDataJS);
 
-    // Créer le fichier de données JSON pour compatibilité
     zip.file('import.json', JSON.stringify(importData, null, 2));
 
-    // Télécharger le zip
     const content = await zip.generateAsync({ type: 'blob' });
     saveAs(content, `${exerciseTitle}.zip`);
   }
 
   private async copyStaticTemplates(zip: JSZip): Promise<void> {
     try {
-      // Copier index.html
       const indexHtml = await this.http.get('assets/templates/index.html', { responseType: 'text' }).toPromise();
       if (indexHtml) {
         zip.file('index.html', indexHtml);
       }
 
-      // Copier styles.css
       const stylesCss = await this.http.get('assets/templates/styles.css', { responseType: 'text' }).toPromise();
       if (stylesCss) {
         zip.file('styles.css', stylesCss);
       }
 
-      // Copier exercise-engine.js
       const exerciseEngineJS = await this.http.get('assets/templates/exercise-engine.js', { responseType: 'text' }).toPromise();
       if (exerciseEngineJS) {
         zip.file('exercise-engine.js', exerciseEngineJS);
@@ -80,8 +71,7 @@ export class ExportService {
   }
 
   private generateExerciseDataJS(importData: any): string {
-    return `// Données de l'exercice généré automatiquement
-const EXERCISE_DATA = ${JSON.stringify(importData, null, 2)};`;
+    return `const EXERCISE_DATA = ${JSON.stringify(importData, null, 2)};`;
   }
 
   private async prepareImportData(exerciseData: ExerciseData, assetsFolder: JSZip): Promise<any> {
@@ -96,7 +86,6 @@ const EXERCISE_DATA = ${JSON.stringify(importData, null, 2)};`;
         audioElements: []
       };
 
-      // Traiter l'image de fond du groupe
       if (group.backgroundImage) {
         const imageExt = this.getFileExtension(group.backgroundImage.name);
         const imageName = `image_${imageCounter++}.${imageExt}`;
@@ -104,7 +93,6 @@ const EXERCISE_DATA = ${JSON.stringify(importData, null, 2)};`;
         groupData.backgroundImage = `assets/${imageName}`;
       }
 
-      // Traiter les éléments audio du groupe
       for (const audioElement of group.audioElements) {
         if (audioElement.file) {
           const audioExt = this.getFileExtension(audioElement.file.name);
