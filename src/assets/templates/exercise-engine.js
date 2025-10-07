@@ -511,20 +511,32 @@ class ListeningExercise {
             }
         });
 
-        // Afficher les résultats finaux
         const percentage = Math.round((correctAnswers / totalAnswers) * 100);
-        setTimeout(() => {
-            alert(`Exercice terminé !\\nScore: ${correctAnswers}/${totalAnswers} (${percentage}%)`);
-        }, 1000);
+        this.displayScore(correctAnswers, totalAnswers, percentage);
 
-        // Cacher le bouton de validation
         document.getElementById('validateBtn').style.display = 'none';
         
         this.gameCompleted = true;
     }
+
+    displayScore(correctAnswers, totalAnswers, percentage) {
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const scoreText = document.getElementById('scoreText');
+
+        scoreDisplay.style.display = 'block';
+        
+        scoreText.textContent = `Score: ${correctAnswers}/${totalAnswers} (${percentage}%)`;
+
+        if (percentage >= 80) {
+            scoreText.style.color = '#27ae60';
+        } else if (percentage >= 60) {
+            scoreText.style.color = '#f39c12';
+        } else {
+            scoreText.style.color = '#e74c3c';
+        }
+    }
 }
 
-// Initialiser l'exercice quand la page est chargée
 document.addEventListener('DOMContentLoaded', () => {
     window.exercise = new ListeningExercise();
 });
