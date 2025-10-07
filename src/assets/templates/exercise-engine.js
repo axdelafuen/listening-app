@@ -27,7 +27,12 @@ class ListeningExercise {
     setupEventListeners() {
         document.getElementById('validateBtn').addEventListener('click', () => this.validateAllAnswers());
         
-        // Attendre que les éléments soient disponibles pour la gestion du volume
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.id === 'saveResultBtn') {
+                this.saveResult();
+            }
+        });
+        
         setTimeout(() => {
             const volumeSlider = document.getElementById('volumeSlider');
             const volumeValue = document.getElementById('volumeValue');
@@ -40,17 +45,14 @@ class ListeningExercise {
                     volumeValue.textContent = e.target.value + '%';
                 });
                 
-                // Initialiser le volume
-                audioElement.volume = 0.7;
+                audioElement.volume = 0.5;
             }
         }, 100);
         
-        // Gestion du drag and drop
         this.setupDragAndDrop();
     }
 
     setupDragAndDrop() {
-        // Événements pour les zones de dépôt (emplacements)
         document.addEventListener('dragover', (e) => {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
@@ -76,7 +78,6 @@ class ListeningExercise {
                     const draggedData = JSON.parse(e.dataTransfer.getData('text/plain'));
                     this.handleDrop(draggedData, dropZone);
                 } catch (error) {
-                    // Fallback pour l'ancien système
                     const audioId = e.dataTransfer.getData('text/plain');
                     if (audioId && !isNaN(parseInt(audioId))) {
                         this.placeAudio(audioId, dropZone);
@@ -116,7 +117,6 @@ class ListeningExercise {
         dropZone.className = 'drop-zone';
         dropZone.dataset.groupId = group.id;
 
-        // Créer les emplacements pour les audios
         for (let i = 0; i < group.audioElements.length; i++) {
             const slot = document.createElement('div');
             slot.className = 'audio-slot';
@@ -133,7 +133,6 @@ class ListeningExercise {
     }
 
     prepareAudioElements() {
-        // Collecter tous les éléments audio et les mélanger
         this.allAudioElements = [];
         this.importData.groups.forEach(group => {
             group.audioElements.forEach(audio => {
@@ -144,7 +143,6 @@ class ListeningExercise {
             });
         });
 
-        // Mélanger l'ordre des audios
         this.shuffleArray(this.allAudioElements);
     }
 
@@ -163,7 +161,6 @@ class ListeningExercise {
 
         const audio = this.allAudioElements[this.currentAudioIndex];
         this.createAudioElement(audio);
-        // Ne pas jouer automatiquement l'audio
     }
 
     createAudioElement(audioData) {
@@ -185,7 +182,6 @@ class ListeningExercise {
         audioElement.appendChild(playIcon);
         audioElement.appendChild(nameSpan);
 
-        // Événements de drag
         audioElement.addEventListener('dragstart', (e) => {
             const dragData = {
                 type: 'pending',
@@ -201,7 +197,6 @@ class ListeningExercise {
             audioElement.classList.remove('dragging');
         });
 
-        // Clic sur l'icône play pour jouer/pause l'audio
         playIcon.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -258,22 +253,18 @@ class ListeningExercise {
         const sourceSlot = document.querySelector(`[data-group-id="${draggedData.groupId}"][data-slot-index="${draggedData.slotIndex}"]`);
         
         if (targetSlot.classList.contains('filled')) {
-            // Échange entre deux emplacements
             const targetPlacement = this.findPlacementBySlot(targetSlot);
             if (targetPlacement) {
-                // Mettre à jour les placements
                 this.userPlacements[draggedData.audioId].groupId = targetSlot.dataset.groupId;
                 this.userPlacements[draggedData.audioId].slotIndex = targetSlot.dataset.slotIndex;
                 
                 this.userPlacements[targetPlacement.audioId].groupId = sourceSlot.dataset.groupId;
                 this.userPlacements[targetPlacement.audioId].slotIndex = sourceSlot.dataset.slotIndex;
                 
-                // Mettre à jour l'affichage
                 this.updateSlotDisplay(targetSlot, draggedData.audioData);
                 this.updateSlotDisplay(sourceSlot, targetPlacement.audioData);
             }
         } else {
-            // Déplacement simple vers un emplacement vide
             this.userPlacements[draggedData.audioId].groupId = targetSlot.dataset.groupId;
             this.userPlacements[draggedData.audioId].slotIndex = targetSlot.dataset.slotIndex;
             
@@ -294,7 +285,6 @@ class ListeningExercise {
         slot.classList.add('filled');
         slot.draggable = true;
         
-        // Ajouter un bouton play simple
         const playBtn = document.createElement('button');
         playBtn.className = 'play-button';
         playBtn.textContent = '▶';
@@ -308,7 +298,6 @@ class ListeningExercise {
         slot.style.position = 'relative';
         slot.appendChild(playBtn);
         
-        // Événements de drag pour les éléments placés
         slot.addEventListener('dragstart', (e) => {
             try {
                 const placement = this.userPlacements[audioData.id];
@@ -392,7 +381,6 @@ class ListeningExercise {
     toggleAudio(audioData, playIcon) {
         const audioElement = document.getElementById('audioElement');
         
-        // Si c'est le même audio qui joue actuellement
         if (audioElement.src && audioElement.src.includes(audioData.fileName)) {
             if (audioElement.paused) {
                 this.playAudio(audioData, playIcon);
@@ -400,7 +388,6 @@ class ListeningExercise {
                 this.pauseAudio(playIcon);
             }
         } else {
-            // Jouer un nouvel audio
             this.playAudio(audioData, playIcon);
         }
     }
@@ -408,7 +395,6 @@ class ListeningExercise {
     playAudio(audioData, playIcon = null) {
         const audioElement = document.getElementById('audioElement');
         
-        // Arrêter tous les autres audios
         this.stopAllAudio();
         
         audioElement.src = audioData.fileName;
@@ -434,7 +420,6 @@ class ListeningExercise {
             if (playIcon) {
                 playIcon.textContent = '▶';
             }
-            // Réinitialiser tous les boutons
             document.querySelectorAll('.play-button').forEach(button => {
                 button.textContent = '▶';
             });
@@ -456,7 +441,6 @@ class ListeningExercise {
     }
 
     placeAudio(audioId, slotElement) {
-        // Cette méthode est conservée pour la compatibilité, elle redirige vers le nouveau système
         const numericAudioId = parseInt(audioId);
         const audioData = this.allAudioElements.find(a => a.id === numericAudioId);
         if (!audioData) {
@@ -478,13 +462,10 @@ class ListeningExercise {
         const placedAudios = Object.keys(this.userPlacements).length;
 
         if (placedAudios === totalAudios) {
-            // Tous les audios sont placés, afficher le bouton de validation
             document.getElementById('validateBtn').style.display = 'inline-block';
             
-            // Cacher la zone des éléments audio car elle est maintenant vide
             document.querySelector('.audio-elements-zone').style.display = 'none';
             
-            // Griser tous les emplacements
             document.querySelectorAll('.audio-slot.filled').forEach(slot => {
                 slot.classList.add('disabled');
             });
@@ -495,7 +476,6 @@ class ListeningExercise {
         let correctAnswers = 0;
         const totalAnswers = Object.keys(this.userPlacements).length;
 
-        // Vérifier chaque placement et mettre à jour l'affichage
         Object.entries(this.userPlacements).forEach(([audioId, placement]) => {
             const isCorrect = placement.groupId == placement.correctGroupId;
             const slot = document.querySelector(`[data-group-id="${placement.groupId}"][data-slot-index="${placement.slotIndex}"]`);
@@ -517,6 +497,55 @@ class ListeningExercise {
         document.getElementById('validateBtn').style.display = 'none';
         
         this.gameCompleted = true;
+    }
+
+    async saveResult() {
+        const userName = prompt('Entrez le nom pour sauvegarder le résultat:');
+        
+        if (!userName || userName.trim() === '') {
+            alert('Nom requis pour sauvegarder le résultat.');
+            return;
+        }
+
+        try {
+            const saveBtn = document.getElementById('saveResultBtn');
+            const originalDisplay = saveBtn.style.display;
+            const userNameScore = document.getElementById('userNameScore');
+            
+            saveBtn.style.display = 'none';
+            if (userNameScore) {
+                userNameScore.textContent = `Résultat de: ${userName}`;
+                userNameScore.style.display = 'block';
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // TODO SAVE RESULT AS IMG
+
+            saveBtn.style.display = originalDisplay;
+            if (userNameScore) {
+                userNameScore.textContent = '';
+                userNameScore.style.display = 'none';
+            }
+
+        } catch (error) {
+            console.error('Erreur lors de la sauvegarde:', error);
+            alert('Erreur lors de la sauvegarde du résultat. Essayez à nouveau.');
+            
+            const saveBtn = document.getElementById('saveResultBtn');
+            const userNameScore = document.getElementById('userNameScore');
+            const container = document.querySelector('.container');
+            
+            if (saveBtn) saveBtn.style.display = 'inline-block';
+            if (userNameScore) {
+                userNameScore.textContent = '';
+                userNameScore.style.display = 'none';
+            }
+            if (container) {
+                container.style.width = '';
+                container.style.maxWidth = '';
+            }
+        }
     }
 
     displayScore(correctAnswers, totalAnswers, percentage) {
