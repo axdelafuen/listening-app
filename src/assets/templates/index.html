@@ -9,6 +9,11 @@
 <body>
     <div class="container">
         <div class="header">
+            <div class="volume-controls">
+                <label for="volumeSlider">Volume:</label>
+                <input type="range" id="volumeSlider" min="0" max="100" value="50" class="volume-slider">
+                <span id="volumeValue">50%</span>
+            </div>
             <h1 class="title" id="exerciseTitle">Exercice d'écoute</h1>
             <p class="instructions">
                 Glissez et déposez les éléments audio dans les bons groupes.
@@ -17,11 +22,6 @@
 
         <div class="audio-elements-zone">
             <h3>Éléments audio à placer</h3>
-            <div class="volume-controls">
-                <label for="volumeSlider">Volume:</label>
-                <input type="range" id="volumeSlider" min="0" max="100" value="50" class="volume-slider">
-                <span id="volumeValue">50%</span>
-            </div>
             <div class="audio-elements-container" id="audioElementsContainer">
             </div>
             <audio id="audioElement" preload="auto"></audio>

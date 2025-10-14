@@ -16,6 +16,7 @@ body {
 }
 
 .header {
+    position: relative;
     text-align: center;
     margin-bottom: 30px;
     background: white;
@@ -51,11 +52,13 @@ body {
 }
 
 .volume-controls {
+    position: absolute;
+    right: 10px;
+    top: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    margin-bottom: 20px;
     padding: 10px;
     background: #f8f9fa;
     border-radius: 8px;
@@ -364,5 +367,11 @@ body {
     
     .title {
         font-size: 2rem;
+    }
+
+    .volume-controls {
+        position: relative;
+        right: inherit;
+        top: inherit;
     }
 }

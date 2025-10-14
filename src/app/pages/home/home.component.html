@@ -14,9 +14,14 @@
       </div>
 
       <div class="action-section">
-        <button class="create-exercise-btn" type="button" routerLink="/create-exercise">
+        <button class="action-btn create-exercise-btn" type="button" routerLink="/create-exercise">
           Créer un nouvel exercice
         </button>
+        <button class="action-btn import-exercise-btn" type="button" (click)="triggerImport()" [disabled]="isImporting">
+          {{ isImporting ? 'Import en cours...' : 'Modifier un exercice' }}
+        </button>
+        <input #importInput type="file" accept="application/zip,.zip" style="display:none" (change)="onFileSelected($event)" />
+        <div *ngIf="importError" class="import-error">{{ importError }}</div>
       </div>
     </section>
   </div>

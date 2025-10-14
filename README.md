@@ -29,7 +29,6 @@ Run dev serve: (`http://localhost:4200/`)
 ng serve --open
 ```
 
-
 ## Author
 
 [axdelafuen](https://github.com/axdelafuen)
