@@ -16,6 +16,7 @@ body {
 }
 
 .header {
+    position: relative;
     text-align: center;
     margin-bottom: 30px;
     background: white;

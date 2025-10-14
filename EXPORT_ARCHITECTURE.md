@@ -25,3 +25,7 @@ exercise-name.zip/
 ## Static Templates
 
 Static templates are stored in `src/assets/templates/`:
+
+## Import
+
+To import an exercice on the app, upload the `.zip` file from the home page.

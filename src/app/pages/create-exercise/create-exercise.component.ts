@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ExportService } from '../../services/export/export.service';
+import { ImportService } from '../../services/import/import.service';
 
 interface AudioElement {
   id: number;
@@ -21,7 +22,7 @@ interface ExerciseGroup {
   templateUrl: './create-exercise.component.html',
   styleUrls: ['./create-exercise.component.css']
 })
-export class CreateExerciseComponent {
+export class CreateExerciseComponent implements OnInit {
   exerciseTitle: string = '';
   groups: ExerciseGroup[] = [];
   private nextGroupId = 1;
@@ -31,7 +32,50 @@ export class CreateExerciseComponent {
   showExitPopup = false;
   isSaved = false;
 
-  constructor(private router: Router, private exportService: ExportService) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private exportService: ExportService,
+    private importService: ImportService
+  ) {}
+
+  ngOnInit(): void {
+    this.route.queryParamMap.subscribe(params => {
+      const imported = params.get('imported');
+      if (imported === '1' && this.importService.hasImportedExercise()) {
+        const data = this.importService.consumeImportedExercise();
+        if (data) {
+          this.populateFromImported(data);
+        }
+      }
+    });
+  }
+
+  private populateFromImported(data: any) {
+    this.exerciseTitle = data.title || '';
+    this.groups = [];
+    this.nextGroupId = 1;
+    this.nextAudioId = 1;
+
+    for (const g of data.groups || []) {
+      const newGroup: ExerciseGroup = {
+        id: this.nextGroupId++,
+        backgroundImage: g.backgroundImage || null,
+        backgroundImageName: g.backgroundImageName || (g.backgroundImage?.name || ''),
+        backgroundImageUrl: g.backgroundImageUrl || (g.backgroundImage ? URL.createObjectURL(g.backgroundImage) : ''),
+        audioElements: []
+      };
+
+      for (const a of g.audioElements || []) {
+        newGroup.audioElements.push({
+          id: this.nextAudioId++,
+            file: a.file || null,
+            fileName: a.fileName || ''
+        });
+      }
+      this.groups.push(newGroup);
+    }
+  }
 
 
   addGroup() {
