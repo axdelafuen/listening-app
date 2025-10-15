@@ -351,12 +351,16 @@ class ListeningExercise {
     playPlacedAudio(audioId) {
         const placement = this.userPlacements[audioId];
         if (placement) {
-            this.stopAllAudio();
-            this.playAudio(placement.audioData);
+            this.toggleAudio(placement.audioData);
             
             const slot = document.querySelector(`[data-group-id="${placement.groupId}"][data-slot-index="${placement.slotIndex}"] .play-button`);
-            if (slot) {
-                slot.textContent = '⏸';
+            if (slot){
+                if (slot.textContent === '▶') {
+                    slot.textContent = '⏸';
+                }
+                else {
+                    slot.textContent = '▶';
+                }
             }
         }
     }
