@@ -99,6 +99,8 @@
   align-items: center;
   gap: 0.5rem;
   transition: all 0.3s ease;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
 }
 
 .btn:disabled {
@@ -376,7 +378,6 @@
   color: white;
   padding: 1.2rem 3rem;
   font-size: 1.2rem;
-  border-radius: 12px;
   box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
 }
 
