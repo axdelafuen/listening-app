@@ -132,6 +132,12 @@
     <section class="bottom-actions" *ngIf="groups.length > 0 || exerciseTitle.trim() !== ''">
       <button 
         type="button" 
+        class="btn btn-primary" 
+        (click)="addGroup()">
+          <span class="icon">➕</span> Ajouter un groupe
+      </button>
+      <button 
+        type="button" 
         class="btn btn-save-bottom" 
         (click)="saveExercise()"
       >
