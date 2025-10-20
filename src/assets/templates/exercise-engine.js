@@ -1,6 +1,13 @@
 class ListeningExercise {
-    constructor() {
-        this.importData = EXERCISE_DATA;
+    constructor(data) {
+        if (data) {
+            this.importData = data;
+        } else if (typeof EXERCISE_DATA !== 'undefined') {
+            this.importData = EXERCISE_DATA;
+        } else {
+            console.warn('ListeningExercise: aucune donnée fournie, importData vide.');
+            this.importData = { title: 'Exercice', groups: [] };
+        }
         this.allAudioElements = [];
         this.currentAudioIndex = 0;
         this.userPlacements = {};
@@ -570,6 +577,10 @@ class ListeningExercise {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    window.exercise = new ListeningExercise();
-});
+// Instanciation automatique seulement si variable autoInit true
+if (typeof window !== 'undefined') {
+    if (!window.exercise && typeof EXERCISE_DATA !== 'undefined') {
+        // Auto-init conservé mais peut être ignoré si Angular instancie d'abord
+        window.exercise = new ListeningExercise(EXERCISE_DATA);
+    }
+}
