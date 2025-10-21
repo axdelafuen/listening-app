@@ -4,6 +4,7 @@
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
 .btn-back {
   margin-top: 1.5rem;
   padding: .6rem 1.2rem;
@@ -13,6 +14,7 @@
   border-radius:6px;
   cursor:pointer;
 }
+
 .btn-back:hover {
   background:#2980b9;
 }
