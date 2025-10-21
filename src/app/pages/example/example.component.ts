@@ -33,7 +33,7 @@ export class ExampleComponent implements AfterViewInit, OnDestroy {
     }
 
     try {
-  const response = await fetch('/assets/templates/index.html');
+      const response = await fetch('/assets/templates/index.html');
       const htmlText = await response.text();
 
       const parser = new DOMParser();
@@ -84,7 +84,11 @@ export class ExampleComponent implements AfterViewInit, OnDestroy {
 
     try {
       await ensureEngine();
-      this.instantiateEngineSafely();
+      if ((window as any).initListeningExercise) {
+        (window as any).initListeningExercise(this.mockData);
+      } else if ((window as any).ListeningExercise) {
+        (window as any).exercise = new (window as any).ListeningExercise(this.mockData);
+      }
     } catch (e) {
       console.error('Impossible d\'initialiser le moteur', e);
     }
@@ -92,38 +96,6 @@ export class ExampleComponent implements AfterViewInit, OnDestroy {
 
   goBack(): void {
     this.router.navigate(['/']);
-  }
-
-  private instantiateEngineSafely(): void {
-  if (!this.isBrowser()) return;
-    this.zone.runOutsideAngular(() => {
-      try {
-        if ((window as any).ListeningExercise) {
-          console.debug('[ExampleComponent] Instanciation ListeningExercise avec mockData', this.mockData);
-          if ((window as any).exercise && typeof (window as any).exercise.reload === 'function') {
-            console.debug('[ExampleComponent] Instance existante détectée, appel reload');
-            (window as any).exercise.reload(this.mockData);
-          } else {
-            (window as any).exercise = new (window as any).ListeningExercise(this.mockData);
-          }
-          setTimeout(() => {
-            const groupsContainer = document.getElementById('groupsContainer');
-            if (!groupsContainer || groupsContainer.children.length === 0) {
-              console.warn('[ExampleComponent] groupsContainer vide après init, tentative reload fallback');
-              if ((window as any).exercise && typeof (window as any).exercise.reload === 'function') {
-                (window as any).exercise.reload(this.mockData);
-              }
-            } else {
-              console.debug('[ExampleComponent] groupsContainer OK, nb enfants:', groupsContainer.children.length);
-            }
-          }, 300);
-        } else {
-          console.warn('[ExampleComponent] ListeningExercise non disponible après chargement script');
-        }
-      } catch (e) {
-        console.error('Erreur initialisation ListeningExercise', e);
-      }
-    });
   }
 
   ngOnDestroy(): void {

@@ -577,10 +577,25 @@ class ListeningExercise {
     }
 }
 
-// Instanciation automatique seulement si variable autoInit true
 if (typeof window !== 'undefined') {
-    if (!window.exercise && typeof EXERCISE_DATA !== 'undefined') {
-        // Auto-init conservé mais peut être ignoré si Angular instancie d'abord
-        window.exercise = new ListeningExercise(EXERCISE_DATA);
+    if (!window.ListeningExercise) {
+        document.addEventListener('DOMContentLoaded', () => {
+            window.exercise = new ListeningExercise();
+        });
+        window.ListeningExercise = ListeningExercise;
+    }
+    if (!window.exercise && typeof window.EXERCISE_DATA !== 'undefined') {
+        window.initListeningExercise(window.EXERCISE_DATA);
+    }
+    else {
+        window.initListeningExercise = function(data) {
+            try {
+                if (window.exercise && typeof window.exercise.stopAllAudio === 'function') {
+                    window.exercise.stopAllAudio();
+                }
+            } catch {}
+            window.exercise = new window.ListeningExercise(data || window.EXERCISE_DATA);
+            return window.exercise;
+        }
     }
 }
