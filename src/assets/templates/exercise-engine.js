@@ -1,6 +1,13 @@
 class ListeningExercise {
-    constructor() {
-        this.importData = EXERCISE_DATA;
+    constructor(data) {
+        if (data) {
+            this.importData = data;
+        } else if (typeof EXERCISE_DATA !== 'undefined') {
+            this.importData = EXERCISE_DATA;
+        } else {
+            console.warn('ListeningExercise: aucune donnée fournie, importData vide.');
+            this.importData = { title: 'Exercice', groups: [] };
+        }
         this.allAudioElements = [];
         this.currentAudioIndex = 0;
         this.userPlacements = {};
@@ -570,6 +577,25 @@ class ListeningExercise {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    window.exercise = new ListeningExercise();
-});
+if (typeof window !== 'undefined') {
+    if (!window.ListeningExercise) {
+        document.addEventListener('DOMContentLoaded', () => {
+            window.exercise = new ListeningExercise();
+        });
+        window.ListeningExercise = ListeningExercise;
+    }
+    if (!window.exercise && typeof window.EXERCISE_DATA !== 'undefined') {
+        window.initListeningExercise(window.EXERCISE_DATA);
+    }
+    else {
+        window.initListeningExercise = function(data) {
+            try {
+                if (window.exercise && typeof window.exercise.stopAllAudio === 'function') {
+                    window.exercise.stopAllAudio();
+                }
+            } catch {}
+            window.exercise = new window.ListeningExercise(data || window.EXERCISE_DATA);
+            return window.exercise;
+        }
+    }
+}
